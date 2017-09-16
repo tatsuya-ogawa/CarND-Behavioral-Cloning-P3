@@ -148,7 +148,7 @@ def main():
     sample_count = 1000
     test_size = 0.2
     validation_size = 1000
-    epoch_count = 10
+    epoch_count = 25
     train_generator, valid_generator, samples_per_epoch, y_train = get_train_generator(bins_num=bins_num,
                                                                                        batch_size=batch_size,
                                                                                        sample_count=sample_count,
