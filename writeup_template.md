@@ -54,19 +54,20 @@ The model.py file contains the code for training and saving the convolution neur
 
 ####1. An appropriate model architecture has been employed
 
-My model consists of a convolution neural network with 3x3 filter sizes and depths between 32 and 128 (model.py lines 18-24) 
-
-The model includes RELU layers to introduce nonlinearity (code line 20), and the data is normalized in the model using a Keras lambda layer (code line 18). 
+My model consists of two convolution neural network with  5x5 filter sizes and two convolution neural network with  3x3 filter sizes.(train.py lines 118-126) 
+The each convolution layers includes RELU layers to introduce nonlinearity, and the data is normalized in the model using a Keras lambda layer (code line 119). 
+When creating a model,I referred to the following link
+<https://devblogs.nvidia.com/parallelforall/deep-learning-self-driving-cars/>
 
 ####2. Attempts to reduce overfitting in the model
 
-The model contains dropout layers in order to reduce overfitting (model.py lines 21). 
+The model contains dropout layers in order to reduce overfitting (train.py lines 124,127 and 132). 
 
-The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 10-16). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
+The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 62-83). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
 ####3. Model parameter tuning
 
-The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 25).
+The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 134).
 
 ####4. Appropriate training data
 
@@ -78,9 +79,13 @@ For details about how I created the training data, see the next section.
 
 ####1. Solution Design Approach
 
-The overall strategy for deriving a model architecture was to ...
+My first step was to use a convolution neural network model similar to the [link](https://devblogs.nvidia.com/parallelforall/deep-learning-self-driving-cars/) with non processed training data.
 
-My first step was to use a convolution neural network model similar to the ... I thought this model might be appropriate because ...
+The first run with the simulator is failed,The car would not bend at all.
+When I saw the histogram , then it was heavily skewed toward low and zero turning angles.So I flattened it(talk at ####3).
+
+In order to increase memory efficiency,
+I decided to use fit_generator instead of fit(train.py line 149)
 
 In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. I found that my first model had a low mean squared error on the training set but a high mean squared error on the validation set. This implied that the model was overfitting. 
 
@@ -88,41 +93,49 @@ To combat the overfitting, I modified the model so that ...
 
 Then I ... 
 
-The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle fell off the track... to improve the driving behavior in these cases, I ....
+The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle fell off the track... to improve the driving behavior in these cases, So,I sampled it repeatedly on that spots.
+The spots examples were following points.
+
+![bridge](./examples/bridge.jpg)
+![dart](./examples/dart.jpg)
+
 
 At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
 
 ####2. Final Model Architecture
 
-The final model architecture (model.py lines 18-24) consisted of a convolution neural network with the following layers and layer sizes ...
+The final model architecture (train.py lines 117-135) consisted of a convolution neural network with the following layers and layer sizes ...
 
 Here is a visualization of the architecture (note: visualizing the architecture is optional according to the project rubric)
 
-![alt text][image1]
+![model](./train/model.png)
 
 ####3. Creation of the Training Set & Training Process
 
 To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
 
-![alt text][image2]
+![center](./examples/center.jpg)
 
 I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to .... These images show what a recovery looks like starting from ... :
 
-![alt text][image3]
-![alt text][image4]
-![alt text][image5]
+![center](./examples/center.jpg)
+![left](./examples/left.jpg)
+![right](./examples/right.jpg)
 
 Then I repeated this process on track two in order to get more data points.
 
 To augment the data sat, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
 
-![alt text][image6]
-![alt text][image7]
+![center](./examples/center.jpg)
+![center](./examples/fliped.jpg)
 
-Etc ....
 
-After the collection process, I had X number of data points. I then preprocessed this data by ...
-
+After the collection process, I had following data points. 
+![histogram](./train/data_histogram.png)
+The left visual is original data.
+That was heavily skewed toward low and zero turning angles,
+so I added a resampling process(train.py line 51 through 57).
+It lead to data to be flatten(right of graph).
 
 I finally randomly shuffled the data set and put Y% of the data into a validation set. 
 
