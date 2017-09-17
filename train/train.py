@@ -46,7 +46,8 @@ def get_train_generator(sample_count, batch_size, bins_num, test_size):
         n, bins = np.histogram(y_train, bins=bins_num)
         grouped = [np.where((bins[i] <= y_train) & (y_train < bins[i + 1]))[0] for i in range(len(bins) - 1)]
         sample_indexes = np.array(
-            [np.random.choice(grouped_indexes, sample_count) for grouped_indexes in grouped if len(grouped_indexes) != 0]).flatten()
+            [np.random.choice(grouped_indexes, sample_count) for grouped_indexes in grouped if
+             len(grouped_indexes) != 0]).flatten()
         return sample_indexes
 
     from sklearn.utils import shuffle
@@ -92,6 +93,7 @@ def show_histgram(y_label, bins_num):
 
 
 def train(train_generator, valid_generator, samples_per_epoch, validation_size, epoch_count):
+    import keras
     from keras.models import Sequential
     from keras.layers import Flatten, Dense
     from keras.layers import Lambda
@@ -134,10 +136,17 @@ def train(train_generator, valid_generator, samples_per_epoch, validation_size, 
     #     print(i)
     #     print(train_generator.__next__())
     # model.fit_generator(train_generator, validation_split=0.2, shuffle=True, nb_epoch=3, batch_size=10)
+
+    ### add for TensorBoard
+    tbcb = keras.callbacks.TensorBoard(log_dir="../tflog/")
+    ###
+
     model.fit_generator(train_generator, validation_data=valid_generator,
                         samples_per_epoch=samples_per_epoch,
                         nb_val_samples=validation_size,
-                        nb_epoch=epoch_count)
+                        nb_epoch=epoch_count,
+                        callbacks=[tbcb],
+                        verbose=1)
 
     model.save('model.h5')
 
@@ -148,12 +157,12 @@ def main():
     sample_count = 1000
     test_size = 0.2
     validation_size = 1000
-    epoch_count = 25
+    epoch_count = 40
     train_generator, valid_generator, samples_per_epoch, y_train = get_train_generator(bins_num=bins_num,
                                                                                        batch_size=batch_size,
                                                                                        sample_count=sample_count,
                                                                                        test_size=test_size)
-    #show_histgram(y_train, bins_num)
+    # show_histgram(y_train, bins_num)
     train(train_generator=train_generator, valid_generator=valid_generator, samples_per_epoch=samples_per_epoch,
           validation_size=validation_size, epoch_count=epoch_count)
 
